@@ -82,7 +82,7 @@ export default function Page() {
   const userMessages = createMemo(() =>
     messages()
       .filter((m) => m.role === "user")
-      .sort((a, b) => a.id.localeCompare(b.id)),
+      .sort((a, b) => (a.id ?? "").localeCompare(b.id ?? "")),
   )
   const visibleUserMessages = createMemo(() => {
     const revert = revertMessageID()

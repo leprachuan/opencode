@@ -76,9 +76,11 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
               draft.message[sessionID] = messages
                 .data!.map((x) => x.info)
                 .slice()
-                .sort((a, b) => a.id.localeCompare(b.id))
+                .sort((a, b) => (a.id ?? "").localeCompare(b.id ?? ""))
               for (const message of messages.data!) {
-                draft.part[message.info.id] = message.parts.slice().sort((a, b) => a.id.localeCompare(b.id))
+                draft.part[message.info.id] = message.parts
+                  .slice()
+                  .sort((a, b) => (a.id ?? "").localeCompare(b.id ?? ""))
               }
               draft.session_diff[sessionID] = diff.data ?? []
             }),
@@ -89,7 +91,7 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
           await sdk.client.session.list().then((x) => {
             const sessions = (x.data ?? [])
               .slice()
-              .sort((a, b) => a.id.localeCompare(b.id))
+              .sort((a, b) => (a.id ?? "").localeCompare(b.id ?? ""))
               .slice(0, store.limit)
             setStore("session", sessions)
           })

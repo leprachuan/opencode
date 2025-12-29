@@ -66,7 +66,9 @@ export default function Share(props: { id: string; api: string; info: Session.In
     },
     messages: {},
   })
-  const messages = createMemo(() => Object.values(store.messages).toSorted((a, b) => a.id?.localeCompare(b.id)))
+  const messages = createMemo(() =>
+    Object.values(store.messages).toSorted((a, b) => (a.id ?? "").localeCompare(b.id ?? "")),
+  )
   const [connectionStatus, setConnectionStatus] = createSignal<[Status, string?]>(["disconnected", "Disconnected"])
   createEffect(() => {
     console.log(unwrap(store))

@@ -106,7 +106,7 @@ export function SessionTurn(
   const userMessages = createMemo(() =>
     allMessages()
       .filter((m) => m.role === "user")
-      .sort((a, b) => a.id.localeCompare(b.id)),
+      .sort((a, b) => (a.id ?? "").localeCompare(b.id ?? "")),
   )
 
   const message = createMemo(() => userMessages().find((m) => m.id === props.messageID))

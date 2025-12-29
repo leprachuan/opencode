@@ -2603,6 +2603,43 @@ export namespace Server {
           })
         },
       )
+      .all("/*", async (c, next) => {
+        const reqPath = c.req.path === "/" ? "/index.html" : c.req.path
+        // Try multiple possible locations for the app dist
+        const possiblePaths = [
+          import.meta.dir + "/../../../app/dist" + reqPath,
+          "/opt/opencode/packages/app/dist" + reqPath,
+        ]
+        for (const filePath of possiblePaths) {
+          const file = Bun.file(filePath)
+          if (await file.exists()) {
+            const mimeTypes: Record<string, string> = {
+              ".js": "application/javascript",
+              ".mjs": "application/javascript",
+              ".css": "text/css",
+              ".html": "text/html",
+              ".json": "application/json",
+              ".svg": "image/svg+xml",
+              ".png": "image/png",
+              ".ico": "image/x-icon",
+              ".woff": "font/woff",
+              ".woff2": "font/woff2",
+              ".webmanifest": "application/manifest+json",
+            }
+            const ext = reqPath.substring(reqPath.lastIndexOf("."))
+            const contentType = mimeTypes[ext] || "application/octet-stream"
+            // Read file as bytes to ensure correct Content-Length header
+            const content = await file.arrayBuffer()
+            return new Response(content, {
+              headers: {
+                "Content-Type": contentType,
+                "Content-Length": content.byteLength.toString(),
+              },
+            })
+          }
+        }
+        return next()
+      })
       .all("/*", async (c) => {
         return proxy(`https://app.opencode.ai${c.req.path}`, {
           ...c.req,

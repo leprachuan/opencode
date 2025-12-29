@@ -115,7 +115,7 @@ function createGlobalSync() {
         const nonArchived = (x.data ?? [])
           .slice()
           .filter((s) => !s.time.archived)
-          .sort((a, b) => a.id.localeCompare(b.id))
+          .sort((a, b) => ((a.id ?? "") < (b.id ?? "") ? -1 : (a.id ?? "") > (b.id ?? "") ? 1 : 0))
         // Include up to the limit, plus any updated in the last 4 hours
         const sessions = nonArchived.filter((s, i) => {
           if (i < store.limit) return true
@@ -339,7 +339,9 @@ function createGlobalSync() {
         globalSDK.client.project.list().then(async (x) => {
           setGlobalStore(
             "project",
-            x.data!.filter((p) => !p.worktree.includes("opencode-test")).sort((a, b) => a.id.localeCompare(b.id)),
+            x
+              .data!.filter((p) => !p.worktree.includes("opencode-test"))
+              .sort((a, b) => (a.id ?? "").localeCompare(b.id ?? "")),
           )
         }),
       ),
